@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
 	unsigned int cliAddrLen;
 	char echoBuffer[ECHOMAX];
 	unsigned short echoServPort;
+	unsigned short cliPort;
 	int recvMsgSize;
 
 	if (argc != 2)
@@ -24,7 +25,7 @@ int main(int argc, char *argv[])
 	}
 
 	echoServPort = atoi(argv[1]);
-	
+	 
 	if ((sock = socket(PF_INET,SOCK_DGRAM, 0)) < 0)
 		printf("socket() failed.\n");
 
@@ -40,12 +41,15 @@ int main(int argc, char *argv[])
 	for (;;)
 	{
 		cliAddrLen = sizeof(echoClntAddr);
+		cliPort = echoClntAddr.sin_port;
 		// block until receive message from a client
 		if ((recvMsgSize = recvfrom(sock, echoBuffer, ECHOMAX,
 			0, (struct sockaddr *) &echoClntAddr, &cliAddrLen)) < 0)
 			printf("recvform() failed.\n");
  	// print handling message
-	printf("Handling client %s\n", inet_ntoa(echoClntAddr.sin_addr));
+		int i;
+		for (i = 0; i < strlen(echoBuffer); i++)
+	printf("%s: from %s: UDP%s: echoBuffer[i]\n",argv[0], inet_ntoa(echoClntAddr.sin_addr), (char *)&cliPort);
 	
 	if ((sendto(sock, echoBuffer, recvMsgSize, 0,
 		(struct sockaddr *) &echoClntAddr,

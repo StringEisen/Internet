@@ -32,20 +32,27 @@ int main(int argc, char *argv[])
 	servIP = argv[1];
 	// string to echo
 	int i;
-	for (i = 2; argv[i] != NULL; i++)
-	{
-		echoString = echoString + argv[i] + " ";
+	for (i = 2; argv[i] != NULL; i++) {
+		if (argv[i+1] != NULL) {
+			strcat(echoString, " ");
+			strcat(echoString, argv[i]);
+		}
 	}
+
+	if (argc == i+2) {
+		// parse ASCII string to integer, assign port number
+		echoServPort = atoi(argv[i]);
+	}	
+		
+	else {
+		strcat(echoString, " ");
+		strcat(echoString, argv[i]);
+		echoServPort = 7;// well-known port for echo service
+	} 
 
 	if ((echoStringLen = strlen(echoString)) > ECHOMAX)
 		printf("Echo word too long.\n");
-
-	if (argc == i+2)
-		// parse ASCII string to integer, assign port number
-		echoServPort = atoi(argv[i]);
-	else 
-		echoServPort = 7;// well-known port for echo service
-
+		
 	if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
 		printf("socket() failed.\n");
 
@@ -58,6 +65,8 @@ int main(int argc, char *argv[])
 		(struct sockaddr *) &echoServAddr, sizeof(echoServAddr)))
 		!= echoStringLen)
         printf("sendto() sent a different number of bytes than expected\n");
+    else 
+    	printf("sending data to %s", servIP);
 	// define the length of from address fromSize
 	fromSize = sizeof(fromAddr);
 	if ((respStringLen = recvfrom(sock, echoBuffer, ECHOMAX, 0,
